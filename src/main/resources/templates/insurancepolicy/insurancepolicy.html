@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="ctx" th:content="${#httpServletRequest.getContextPath()}"/>
+    <title>Admin - Administrar apólices</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <!-- My JS -->
+
+
+    <!-- My CSS -->
+    <link rel="stylesheet" type="text/css" media="all"
+          href="/css/navbar.css" th:href="@{/css/navbar.css}"/>
+
+    <link rel="stylesheet" type="text/css" media="all"
+    href="/css/customStatus.css" th:href="@{/css/customStatus.css}"/>
+
+    <link rel="stylesheet" type="text/css" media="all"
+          href="/css/customStyle.css" th:href="@{/css/customStyle.css}"/>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var _ctx = $("meta[name='_ctx']").attr("content");
+
+            // Prepend context path to all jQuery AJAX requests
+            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                if (!options.crossDomain) {
+                    options.url = _ctx + options.url;
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            // Activate tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+
+            // Filter table rows based on searched term
+            $("#search").on("keyup", function () {
+                var term = $(this).val().toLowerCase();
+                $("table tbody tr").each(function () {
+                    $row = $(this);
+                    var name = $row.find("td:nth-child(2)").text().toLowerCase();
+                    console.log(name);
+                    if (name.search(term) < 0) {
+                        $row.hide();
+                    } else {
+                        $row.show();
+                    }
+                });
+            });
+        });
+
+        // Edit insurance policy
+        $(document).ready(function () {
+            $('.insurancePolicyToEditId').on('click', function (event) {
+                event.preventDefault(); // prevent make a call to URL (in this case)
+
+                var id = $(this).attr('data-id'); // get form attribute
+                var insurancePolicyNumber = $(this).attr('data-insurancePolicyNumber');
+                var startTerm = $(this).attr('data-startTerm');
+                var endTerm = $(this).attr('data-endTerm');
+                var vehiclePlate = $(this).attr('data-vehiclePlate');
+                var insurancePolicyValue = $(this).attr('data-insurancePolicyValue');
+
+                $('#editInsurancePolicyModal #insurancePolicyToEditId').val(id); // put the attribute in the modal
+                $('#editInsurancePolicyModal #insurancePolicyNumber').val(insurancePolicyNumber);
+                $('#editInsurancePolicyModal #startTerm').val(startTerm);
+                $('#editInsurancePolicyModal #endTerm').val(endTerm);
+                $('#editInsurancePolicyModal #vehiclePlate').val(vehiclePlate);
+                $('#editInsurancePolicyModal #insurancePolicyValue').val(insurancePolicyValue);
+                $('#editInsurancePolicyModal').modal(); // open the modal manually
+            });
+        });
+
+        // Delete Insurance Policy
+        $(document).ready(function () {
+            $('.table .delBtn').on('click', function (event) {
+                event.preventDefault();
+                var href = $(this).attr('href');
+                $('#deleteInsurancePolicyModal #delRef').attr('href', href);
+                $('#deleteInsurancePolicyModal').modal();
+            });
+        });
+
+
+    </script>
+</head>
+<body>
+
+<nav class="navbar navbar-default navbar-expand-lg navbar-light">
+    <div class="navbar-header d-flex col">
+        <a class="navbar-brand" th:href="@{/admin/customers}">Insurance<b>Policy</b></a>
+        <button type="button" data-target="#navbarCollapse" data-toggle="collapse"
+                class="navbar-toggle navbar-toggler ml-auto">
+            <span class="navbar-toggler-icon"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+    </div>
+    <!-- Collection of nav links, forms, and other content for toggling -->
+    <div id="navbarCollapse" class="collapse navbar-collapse justify-content-start">
+        <ul class="nav navbar-nav">
+            <li class="nav-item active"><a th:href="@{/admin/customers}" class="nav-link">Administrar clientes</a></li>
+            <li class="nav-item active"><a th:href="@{/admin/insurance-policies}" class="nav-link">Administrar apólices</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right ml-auto">
+            <li class="nav-item dropdown">
+                <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle insurancePolicy-action"><span
+                        th:utext="${customerName}"></span><b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a th:href="@{/myAccount}" class="dropdown-item"><i class="fa fa-user-o"></i> Minha
+                        conta</a></li>
+                    <li class="divider dropdown-divider"></li>
+                    <li><a th:href="@{/logout}" class="dropdown-item"><i class="material-icons">&#xE8AC;</i> Logout</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Insurance Policy table -->
+<div class="container">
+    <div class="table-wrapper">
+        <div class="table-title">
+            <div class="row">
+                <div class="col-sm-6">
+                    <h2>Administrar <b>Apólices</b></h2>
+                </div>
+                <div class="col-sm-6">
+                    <div class="search-box">
+                        <div class="input-group">
+                            <input type="text" id="search" class="form-control" placeholder="Procurar por nome">
+                            <span class="input-group-addon"><i class="material-icons">&#xE8B6;</i></span>
+                        </div>
+                    </div>
+                    <a href="#addInsurancePolicyModal" class="btn btn-customized btn-customized-hover" data-toggle="modal"><i
+                            class="material-icons">&#xE147;</i>
+                        <span>Adicionar nova apólice</span></a>
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped" id="insurancePolicyTable">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th style="width: 22%;">Número da apólice</th>
+                <th style="width: 22%;">Início de vigência</th>
+                <th>Fim de vigência</th>
+                <th>Estado do contrato</th>
+                <th>Placa do veículo</th>
+                <th>Valor da apólice</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="insurancePolicy, custStat : ${insurancePolicies}">
+                <td class="customWidht"><span th:text="${insurancePolicy.id}"></span></td>
+                <td><span th:text="${insurancePolicy.insurancePolicyNumber}"></span></td>
+                <td><span th:text="${#dates.format(insurancePolicy.startTerm, 'dd-MMM-yyyy')}"></span></td>
+                <td><span th:text="${#dates.format(insurancePolicy.endTerm, 'dd-MMM-yyyy')}"></span></td>
+                <td>
+                    <span th:if="${insurancePolicy.endTerm.before(#dates.createNow())}"><span class="status text-danger">&bull;</span> Vencido</span>
+                    <span th:if="${insurancePolicy.endTerm.after(#dates.createNow())}"><span class="status text-success">&bull;</span> Vigente</span>
+                </td>
+                <td><span th:text="${insurancePolicy.vehiclePlate}"></span></td>
+                <td><span th:text="${insurancePolicy.insurancePolicyValue}"></span></td>
+                <td>
+                    <a href="" class="edit insurancePolicyToEditId"
+                       th:data-insurancePolicyNumber="${insurancePolicy.insurancePolicyNumber}" th:data-startTerm="${insurancePolicy.startTerm}"
+                       th:data-endTerm="${insurancePolicy.endTerm}" th:data-vehiclePlate="${insurancePolicy.vehiclePlate}"
+                       th:data-insurancePolicyValue="${insurancePolicy.insurancePolicyValue}">
+                        <i
+                                class="material-icons"
+                                data-toggle="tooltip" title="Editar">&#xE254;
+                        </i>
+                    </a>
+
+                    <a th:href="@{__${baseUrl}__/customers/delete?(id=${insurancePolicy.id})}" class="delete delBtn"
+                       data-toggle="modal"><i
+                            class="material-icons"
+                            data-toggle="tooltip" title="Delete">&#xE872;</i></a>
+
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Add insurance policy Modal HTML -->
+<div id="addInsurancePolicyModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!--<form id="insurancePolicyForm"> &lt;!&ndash; calling by AJAX &ndash;&gt; -->
+            <form method="POST" action="test" id="addInsurancePolicyForm">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">Adicionar apólice</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Número</label>
+                        <input type="text" class="form-control" id="insurancePolicyNumber2" name="insurancePolicyNumber2" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Início de vigência</label>
+                        <input type="text" class="form-control" id="startTerm2" name="startTerm2" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Fim de vigência</label>
+                        <input type="cpf" class="form-control" id="endTerm2" name="endTerm2" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Placa do veículo</label>
+                        <textarea class="form-control" id="vehiclePlate2" name="vehiclePlate" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Valor da apólice</label>
+                        <textarea class="form-control" id="insurancePolicyValue2" name="insurancePolicyValue2" required></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancelar">
+                    <input type="submit" class="btn btn-success" value="Adicionar">
+                    <script src="/js/postCustomerRequest.js"></script>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit insurance policy Modal HTML -->
+<div id="editInsurancePolicyModal" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="POST" th:action="@{/customers/update}">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold text-secondary ml-5">Editar apólice</h4>
+                    <button type="button" class="close text-secondary" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body mx-3">
+                    <div class="md-form mb-5">
+                        <label data-error="wrong" data-success="right" for="insurancePolicyNumber">Número</label>
+                        <input type="text" id="insurancePolicyNumber" name="insurancePolicyNumber" class="form-control validate" required>
+                    </div>
+
+                    <div class="md-form mb-5">
+                        <label data-error="wrong" data-success="right" for="startTerm">Início de vigência</label>
+                        <input type="text" id="startTerm" name="startTerm" class="form-control validate" required>
+                    </div>
+
+                    <div class="md-form mb-5">
+                        <label data-error="wrong" data-success="right" for="endTerm">Fim de vigência</label>
+                        <input type="text" id="endTerm" name="endTerm" class="form-control validate" required>
+                    </div>
+
+                    <div class="md-form mb-5">
+                        <label data-error="wrong" data-success="right" for="vehiclePlate">Placa do veículo</label>
+                        <input type="text" id="vehiclePlate" name="vehiclePlate" class="form-control validate" required>
+                    </div>
+
+                    <div class="md-form mb-5">
+                        <label data-error="wrong" data-success="right" for="insurancePolicyValue">Valor da apólice</label>
+                        <input type="text" id="insurancePolicyValue" name="insurancePolicyValue" class="form-control validate" required>
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-center editInsideWrapper">
+                    <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancelar">
+                    <input type="submit" class="btn btn-success" value="Salvar">
+
+                    <input id="insurancePolicyToEditId" name="insurancePolicyToEditId" type="hidden" value=""/>
+                    <div id="result"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal HTML -->
+<div id="deleteInsurancePolicyModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Deletar apólice</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Você tem certeza que quer deletar esta apólice?</p>
+                <p class="text-warning"><small>Esta ação não poderá ser desfeita.</small></p>
+            </div>
+            <div class="modal-footer">
+                <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancelar">
+                <a href="" class="btn btn-danger" id="delRef">Deletar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
