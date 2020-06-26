@@ -34,7 +34,7 @@ Clientes:
 - Java
 - Spring (Spring Boot, Spring MVC)
 - MongoDB
-- Spring Security
+- Spring Security (to-do)
 - Thymeleaf
 - Gradle
 
@@ -47,11 +47,11 @@ Clientes:
 - Banco de dados MongoDB instalado
 
 # Passo a passo
-1 - Clone este repositório;
-2 - Vá até o arquivo "application.properties" no caminho "seguradoraasaplog-test/src/main/resources" e garanta que as configurações do seu banco de dados estejam corretas;
-3 - Crie a collection "counters" dentro da database "insurance" para servir o contador para o ID da apólice;
-3.1 - Insira os datas: _id:"customers", seq:0
-4 - Execute o build do projeto na IDE através do Gradle.
+- Clone este repositório;
+- Vá até o arquivo "application.properties" no caminho "seguradoraasaplog-test/src/main/resources" e garanta que as configurações do seu banco de dados estejam corretas;
+- Crie a collection "counters" dentro da database "insurance" para servir o contador para o ID da apólice;
+- Insira os datas: _id:"customers", seq:0
+- Execute o build do projeto na IDE através do Gradle.
 
 
 ## Links úteis
