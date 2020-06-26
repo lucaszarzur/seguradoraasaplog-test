@@ -45,23 +45,25 @@ Clientes:
 - Garanta que você possui o JDK 11 instalado
 - Alguma IDE instalada, pode ser o Eclipse, Spring Tools Suite ou IntelliJ (preferencial)
 - Banco de dados MongoDB instalado
+- Ferramenta para testar a API (Postman, ou Insomnia)
 
 # Passo a passo
 - Clone este repositório;
 - Vá até o arquivo "application.properties" no caminho "seguradoraasaplog-test/src/main/resources" e garanta que as configurações do seu banco de dados estejam corretas;
 - Crie a collection "counters" dentro da database "insurance" para servir o contador para o ID da apólice;
-- Insira os datas: _id:"customers", seq:0
+  - Insira os datas: _id:"customers", seq:0
 - Execute o build do projeto na IDE através do Gradle.
+- Caso queria realizar os testes, dentro da pasta "documentacao", há uma collection com todas as requests da API, realizadas na ferramenta Postman.
 
 
 ## Links úteis
 
 - Instalação MondoDB Linux (https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/):
-wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
-wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
-echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
-sudo apt-get install -y mongodb-org
-sudo systemctl start mongod
-sudo systemctl status mongod
+   - wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+   - wget -qO - https://www.mongodb.org/static/pgp/server-4.2.asc | sudo apt-key add -
+   - echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.2.list
+   - sudo apt-get install -y mongodb-org
+   - sudo systemctl start mongod
+   - sudo systemctl status mongod
 
 - Instalação do Compass (interface gráfica do MongoDB) - https://www.mongodb.com/try/download/compass
