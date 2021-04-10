@@ -10,6 +10,10 @@ public class Counter {
     private String id;
     private int seq;
 
+    public Counter(String id, int seq) {
+        this.id = id;
+        this.seq = seq;
+    }
 
     public int getSeq() {
         return seq;
