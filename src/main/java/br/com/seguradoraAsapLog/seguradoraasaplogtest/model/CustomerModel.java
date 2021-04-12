@@ -17,7 +17,6 @@ public class CustomerModel {
     @NonNull
     String name;
 
-    @NonNull
     String password;
 
     @CPF
@@ -33,7 +32,7 @@ public class CustomerModel {
     @DBRef
     private List<InsurancePolicyModel> insurancePolicies;
 
-    public CustomerModel(@NonNull String name, @NonNull String password, @NonNull @CPF String cpf, @NonNull String city,
+    public CustomerModel(@NonNull String name, String password, @NonNull @CPF String cpf, @NonNull String city,
                          @NonNull String state, List<InsurancePolicyModel> insurancePolicies) {
         this.name = name;
         this.password = password;
@@ -70,7 +69,6 @@ public class CustomerModel {
         this.cpf = cpf;
     }
 
-    @NonNull
     public String getPassword() {
         return password;
     }

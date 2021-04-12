@@ -2,12 +2,14 @@ package br.com.seguradoraAsapLog.seguradoraasaplogtest.api.controllers;
 
 import br.com.seguradoraAsapLog.seguradoraasaplogtest.model.CustomerModel;
 import br.com.seguradoraAsapLog.seguradoraasaplogtest.service.CustomerService;
-import br.com.seguradoraAsapLog.seguradoraasaplogtest.service.InsurancePolicyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -17,37 +19,24 @@ public class CustomerController {
     @Autowired
     private CustomerService customerService;
 
-    @Autowired
-    private InsurancePolicyService insurancePolicyService;
-
     @PostMapping("/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<CustomerModel> create(@RequestBody CustomerModel customer) {
+    public ResponseEntity<CustomerModel> create(@RequestBody CustomerModel customer, HttpServletRequest request) {
 
-        CustomerModel customerCreated = new CustomerModel();
-        boolean customerExists = !(customerService.getByName(customer.getName()) == null);
-        if (!customerExists) {
+        // Verifying if the request is from website
+        request.getSession().setAttribute("isFromWebsite", request.getHeader("referer") != null);
 
-            if (!customerService.isCpfAlreadyExists(customer.getCpf())) {
+        CustomerModel customerCreated = customerService.create(customer);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(customerCreated.getId()).toUri();
 
-                customerCreated = customerService.create(customer.getName(), customer.getPassword(), customer.getCpf(), customer.getCity(),
-                        customer.getState(), customer.getInsurancePolicies());
-                return ResponseEntity.ok(customerCreated);
-            }
-        }
-
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.created(uri).build();
     }
 
     @GetMapping("/get")
     public ResponseEntity<CustomerModel> getCustomer(@RequestParam String name) {
-        CustomerModel customer = customerService.getByName(name);
+        CustomerModel customer = customerService.getByName(name, "get");
 
-        if (customer != null) {
-            return ResponseEntity.ok(customer);
-        }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(customer);
     }
 
     @GetMapping("/getAllCustomers")
@@ -56,32 +45,22 @@ public class CustomerController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<CustomerModel> update(@RequestBody CustomerModel customer) {
+    public ResponseEntity<CustomerModel> update(@RequestBody CustomerModel customer, HttpServletRequest request) {
 
-        CustomerModel customerUpdated = customerService.getByName(customer.getName());
+        // Verifying if the request is from website
+        request.getSession().setAttribute("isFromWebsite", request.getHeader("referer") != null);
 
-        if (customerUpdated != null) {
+        CustomerModel customerUpdated = customerService.update(customer);
 
-            customerUpdated = customerService.update(customer.getName(), customer.getPassword(), customer.getCpf(),
-                    customer.getCity(), customer.getState(), customer.getInsurancePolicies());
-
-            return ResponseEntity.ok(customerUpdated);
-        }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(customerUpdated);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<String> delete(@RequestParam String name) {
-        CustomerModel customerDeleted = customerService.getByName(name);
+    public ResponseEntity<String> delete(@RequestParam String cpf) {
 
-        if (customerDeleted != null) {
-            customerService.delete(name);
+        customerService.delete(cpf);
 
-            return ResponseEntity.ok("Customer with name: " + name + " deleted!");
-        }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok("Customer with cpf: " + cpf + " deleted!");
     }
 
     @DeleteMapping("/deleteAllCustomers")

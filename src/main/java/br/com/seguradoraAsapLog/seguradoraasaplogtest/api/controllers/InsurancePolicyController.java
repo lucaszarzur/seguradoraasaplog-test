@@ -31,7 +31,7 @@ public class InsurancePolicyController {
         boolean insurancePolicyExists = !(insurancePolicyService.getByInsurancePolicyNumber(insurancePolicy.getInsurancePolicyNumber()) == null);
         if (!insurancePolicyExists) {
 
-            CustomerModel customer = customerService.getByName(insurancePolicy.getCustomerName());
+            CustomerModel customer = customerService.getByName(insurancePolicy.getCustomerName(), "create");
 
             if (customer != null) {
 
